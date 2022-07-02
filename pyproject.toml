@@ -1,0 +1,29 @@
+[tool.poetry]
+name = "pixelwars3"
+version = "0.1.0"
+description = ""
+authors = ["ada0l <andreika.varfolomeev@yandex.ru>"]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+fastapi = "^0.78.0"
+SQLAlchemy = "^1.4.39"
+sqlalchemy2-stubs = "^0.0.2-alpha.24"
+loguru = "^0.6.0"
+alembic = "^1.8.0"
+pydantic = {version = "^1.9.1", extras = ["dotenv"]}
+asyncpg = "^0.25.0"
+uvicorn = "^0.18.2"
+fastapi-azure-auth = "^3.4.0"
+Jinja2 = "^3.1.2"
+wsproto = "^1.1.0"
+
+[tool.poetry.dev-dependencies]
+isort = "^5.10.1"
+black = "^22.6.0"
+flake8 = "^4.0.1"
+mypy = "^0.961"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
