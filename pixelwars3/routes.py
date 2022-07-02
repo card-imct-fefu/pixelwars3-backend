@@ -10,5 +10,5 @@ router_v1.include_router(
     router=user_router_v1,
 )
 router_v1.include_router(
-    prefix="/field", tags=["user"], router=field_router_v1
+    prefix="/field", tags=["field"], router=field_router_v1
 )
