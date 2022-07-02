@@ -3,17 +3,25 @@ import uuid
 
 from fastapi import (
     APIRouter,
+    Depends,
+    HTTPException,
     Request,
     Response,
     WebSocket,
     WebSocketDisconnect,
+    status,
 )
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
+from sqlalchemy import select
 
+from pixelwars3.core.database import get_session
+from pixelwars3.core.schemas import Message
 from pixelwars3.field.connection_manager import connection_manager
 from pixelwars3.field.data import CELL_SIZE, FIELD_SIZE, image, players
-from pixelwars3.field.schemas import FieldPydantic
+from pixelwars3.field.schemas import ClearPydantic, FieldPydantic
+from pixelwars3.user.models import VerifiedUser
+from pixelwars3.user.schemas import azure_scheme
 
 router = APIRouter()
 templates = Jinja2Templates(directory="templates")
@@ -66,6 +74,32 @@ async def get_field(request: Request, response: Response):
         cell_size=CELL_SIZE,
         online=connection_manager.get_online(),
     )
+
+
+@router.post("/clear")
+async def clear_field(
+    clear_in: ClearPydantic,
+    session=Depends(get_session),
+    user=Depends(azure_scheme),
+):
+    is_not_user_verified = (
+        await session.execute(
+            select(VerifiedUser).filter(
+                user.claims["preferred_username"] == VerifiedUser.email
+            )
+        )
+    ).scalars().first() is None
+
+    if is_not_user_verified:
+        return HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+        )
+
+    await connection_manager.broadcast(
+        f"clear {clear_in.point_1} {clear_in.point_2}"
+    )
+
+    return Message(detail="Cleared")
 
 
 @router.websocket("/ws")
